@@ -1,33 +1,83 @@
 package extra166y;
 
-import java.util.HashSet;
+import extra166y.Ops.IntToObject;
 
 public class ParallelArray<T> {
-	public static final CharSequence OP_STRING = "op(";
-	HashSet<T> pseudoArrayWithin = new HashSet<T>();
-	
+	T e0;
+	T e1;
+	private Object[] innerArray;
+
+	public ParallelArray() {
+	}
+
 	public static jsr166y.ForkJoinPool defaultExecutor() {
 		return null;
 	}
-	public static <T> ParallelArray<T> create(int size, Class<? super T> elementType, jsr166y.ForkJoinPool executor)
-	{
-		return new ParallelArray<T>();
+
+	public static <T> ParallelArray<T> createUsingHandoff(T[] source, jsr166y.ForkJoinPool executor) {
+		ParallelArray<T> parallelArray = new ParallelArray<T>();
+		parallelArray.innerArray = source;
+		return parallelArray;
+	}
+
+	public void apply(Ops.Procedure<? super T> procedure) {
+		procedure.op(e0);
+		procedure.op(e1);
+	}
+
+	public void applySeq(Ops.Procedure<? super T> procedure) {
+		procedure.op(e0);
+		procedure.op(e1);
+	}
+
+	@SuppressWarnings("unchecked")
+	public void replaceWithGeneratedValue(Ops.Generator<? super T> generator) {
+		// TODO: Is this a good simulation of parallel execution?
+		e0 = (T) generator.op();
+		e1 = (T) generator.op();
+
+		innerArray[0] = e0;
+		innerArray[1] = e1;
+	}
+
+	@SuppressWarnings("unchecked")
+	public void replaceWithGeneratedValueSeq(Ops.Generator<? super T> generator) {
+		e0 = (T) generator.op();
+		e1 = (T) generator.op();
+
+		innerArray[0] = e0;
+		innerArray[1] = e1;
+	}
+
+	@SuppressWarnings("unchecked")
+	public T[] getArray() {
+		return (T[]) innerArray;
+	}
+
+	@SuppressWarnings("unchecked")
+	public void replaceWithMappedIndex(IntToObject<? super T> intToObject) {
+		e0 = (T) intToObject.op(0);
+		e1 = (T) intToObject.op(1);
+
+		innerArray[0] = e0;
+		innerArray[1] = e1;
+	}
+
+	@SuppressWarnings("unchecked")
+	public void replaceWithMappedIndexSeq(IntToObject<? super T> intToObject) {
+		e0 = (T) intToObject.op(0);
+		e1 = (T) intToObject.op(1);
+
+		innerArray[0] = e0;
+		innerArray[1] = e1;
 	}
 	
-	public static <T> ParallelArray<T> createUsingHandoff(T[] source, jsr166y.ForkJoinPool executor)
-	{
-		ParallelArray<T> pa = new ParallelArray<T>();
-		pa.pseudoArrayWithin.add(source[0]);
-		return pa;
-	}
-	
-	public void apply(Ops.Procedure<? super T> procedure) 
-	{
-		procedure.op(pseudoArrayWithin.iterator().next());
-	}
-	
-	public void replaceWithGeneratedValue(Ops.Generator<? super T> generator) 
-	{
-		pseudoArrayWithin.add((T) generator.op());
+	public <W,V> void replaceWithMapping(Ops.BinaryOp<? super T, ? super V, ? extends T> combiner,
+			ParallelArrayWithMapping<W, V> other) {
+		e0 = (T) combiner.op(e0,other.e0);
+		e1 = (T) combiner.op(e1,other.e1);
+		
+		innerArray[0] = e0;
+		innerArray[1] = e1;
 	}
 }
