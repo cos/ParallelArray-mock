@@ -1,5 +1,6 @@
 package extra166y;
 
+import extra166y.Ops.Generator;
 import extra166y.Ops.IntToObject;
 
 public class ParallelArray<T> {
@@ -80,4 +81,12 @@ public class ParallelArray<T> {
 		innerArray[0] = e0;
 		innerArray[1] = e1;
 	}
+
+	public void generate(Generator<?> generator) {
+	  //does not do anything. it is here for the purpose of the example
+  }
+
+	public int size() {
+	  return 2;
+  }
 }
