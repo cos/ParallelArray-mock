@@ -1,0 +1,1 @@
+EclipseKeys.projectFlavor := EclipseProjectFlavor.Java
