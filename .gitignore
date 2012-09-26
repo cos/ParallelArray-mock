@@ -2,3 +2,4 @@ bin/
 /.cache
 target/
 /.classpath
+/.project
