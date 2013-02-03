@@ -15,7 +15,8 @@ public class ParallelArray<T> {
 		return null;
 	}
 
-	public static <T> ParallelArray<T> createUsingHandoff(T[] source, jsr166y.ForkJoinPool executor) {
+	public static <T> ParallelArray<T> createUsingHandoff(T[] source,
+			jsr166y.ForkJoinPool executor) {
 		ParallelArray<T> parallelArray = new ParallelArray<T>();
 		parallelArray.innerArray = source;
 		return parallelArray;
@@ -29,6 +30,11 @@ public class ParallelArray<T> {
 	public void applySeq(Ops.Procedure<? super T> procedure) {
 		procedure.op(e0);
 		procedure.op(e1);
+	}
+	
+	public void applyWithIndexSeq(Ops.ProcedureWithIndex<? super T> procedure) {
+		procedure.op(0, e0);
+		procedure.op(1, e1);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -72,21 +78,26 @@ public class ParallelArray<T> {
 		innerArray[0] = e0;
 		innerArray[1] = e1;
 	}
-	
-	public <W,V> void replaceWithMapping(Ops.BinaryOp<? super T, ? super V, ? extends T> combiner,
+
+	public <W, V> void replaceWithMapping(
+			Ops.BinaryOp<? super T, ? super V, ? extends T> combiner,
 			ParallelArrayWithMapping<W, V> other) {
-		e0 = (T) combiner.op(e0,other.e0);
-		e1 = (T) combiner.op(e1,other.e1);
-		
+		e0 = (T) combiner.op(e0, other.e0);
+		e1 = (T) combiner.op(e1, other.e1);
+
 		innerArray[0] = e0;
 		innerArray[1] = e1;
 	}
 
 	public void generate(Generator<?> generator) {
-	  //does not do anything. it is here for the purpose of the example
-  }
+		// does not do anything. it is here for the purpose of the example
+	}
+
+	public Object[] toArray() {
+		return new Object[] { e0, e1 };
+	}
 
 	public int size() {
-	  return 2;
-  }
+		return 2;
+	}
 }
